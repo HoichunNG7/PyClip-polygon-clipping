@@ -6,6 +6,8 @@ class Application(Frame):
         super().__init__(master)
         self.last_x = -1
         self.last_y = -1
+        self.first_x = -1
+        self.first_y = -1
         self.color = 'red'
         self.master = master
         self.pack()
@@ -14,6 +16,7 @@ class Application(Frame):
 
     def create_widget(self):
         self.canvas = Canvas(self, width=720, height=540, bg='#FFFFFF')
+        self.canvas.bind('<Button-3>', self.draw_last_edge)
         self.canvas.pack()
 
         self.btn_object = Button(self, name='object', text='主多边形')
@@ -42,17 +45,33 @@ class Application(Frame):
         elif name == 'reset':
             self.canvas.delete('all')
             self.reset_last_coord()
+            self.reset_first_coord()
 
     def reset_last_coord(self):
         self.last_x = -1
         self.last_y = -1
 
+    def reset_first_coord(self):
+        self.first_x = -1
+        self.first_y = -1
+
     def draw_new_vertex(self, event):
+        if self.first_x == -1:  # Store the ring's 1st vertex
+            self.first_x, self.first_y = event.x, event.y
+
         self.canvas.create_oval(event.x - 5, event.y - 5, event.x + 5, event.y + 5, fill=self.color)
         if self.last_x != -1:
             self.canvas.create_line(self.last_x,  self.last_y, event.x, event.y, fill=self.color)
 
         self.last_x, self.last_y = event.x, event.y
+
+    def draw_last_edge(self, event):
+        if self.first_x == -1:
+            return
+
+        self.canvas.create_line(self.last_x, self.last_y, self.first_x, self.first_y, fill=self.color)
+        self.reset_last_coord()
+        self.reset_first_coord()
 
 
 def main():
