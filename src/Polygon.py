@@ -23,7 +23,7 @@ class Polygon:
     def close_ring(self):
         direction = self.judge_ring_direction()
         self.ring_directions.append(direction)
-        # print('direction: ', direction)
+        print('direction: ', direction)
         # print('ring_id: ', self.current_ring_index)
 
         self.current_ring_index = self.current_ring_index + 1
