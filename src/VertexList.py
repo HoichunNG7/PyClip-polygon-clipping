@@ -2,10 +2,20 @@ class VertexList:
     def __init__(self, main_polygon=None, clipping_polygon=None):
         self.main_list = []
         self.clipping_list = []
+        self.crossing_in_list = []
+        self.crossing_out_list = []
         self._generate_lists(main_polygon, clipping_polygon)
 
     def _generate_lists(self, m_polygon, c_polygon):
-        pass
+        # TODO: Crossing at a vertex case
+        for m_ring in m_polygon.all_rings:
+            m_length = len(m_ring)
+            for i in range(-1, m_length-1):
+                pass
+                for c_ring in c_polygon.all_rings:
+                    c_length = len(c_ring)
+                    for j in range(-1, c_length-1):
+                        pass
 
     def find_crossing_of_segments(self, ax1, ay1, ax2, ay2, bx1, by1, bx2, by2):
         # TODO: Collinear segment case
@@ -38,9 +48,10 @@ class VertexList:
 
 
 class Vertex:
-    def __init__(self, x, y, next_=None, pre=None, link=None):
+    def __init__(self, x, y, id_=-1,  next_=None, pre=None, link=None):
         self.x = x
         self.y = y
+        self.id = id_
         self.next = next_
         self.pre = pre
         self.mutual_link = link

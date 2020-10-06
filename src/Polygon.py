@@ -4,7 +4,6 @@ class Polygon:
         self.top_x = 100000
         self.top_y = 100000
         self.current_ring_index = 0
-        self.ring_directions = []
         self.all_rings = []
         self.all_rings.append([])
 
@@ -22,9 +21,16 @@ class Polygon:
 
     def close_ring(self):
         direction = self.judge_ring_direction()
-        self.ring_directions.append(direction)
         print('direction: ', direction)
         # print('ring_id: ', self.current_ring_index)
+
+        # Calibrate traverse direction
+        if self.current_ring_index == 0:  # outer ring
+            if direction == 1:
+                self.all_rings[self.current_ring_index].reverse()
+        else:  # inner rings
+            if direction == 0:
+                self.all_rings[self.current_ring_index].reverse()
 
         self.current_ring_index = self.current_ring_index + 1
         self.all_rings.append([])

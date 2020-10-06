@@ -1,5 +1,7 @@
 from tkinter import *
 from Polygon import Polygon
+from VertexList import VertexList as Vlist
+from Clipping import WeilerAthertonClipping as WAclip
 
 
 class Application(Frame):
@@ -14,6 +16,9 @@ class Application(Frame):
         self.main_polygon = Polygon()
         self.clipping_polygon = Polygon()
         self.current_polygon = -1
+
+        self.vertex_list = None
+        self.clipping = None
 
         self.create_widget()
 
@@ -34,6 +39,7 @@ class Application(Frame):
         self.btn_object.bind('<Button-1>', self.event_manager)
         self.btn_window.bind('<Button-1>', self.event_manager)
         self.btn_reset.bind('<Button-1>', self.event_manager)
+        self.btn_clipping.bind('<Button-1>', self.event_manager)
 
     def event_manager(self, event):
         name = event.widget.winfo_name()
@@ -53,6 +59,11 @@ class Application(Frame):
             self.reset_first_coord()
             self.main_polygon = Polygon()
             self.clipping_polygon = Polygon()
+        elif name == 'clipping':
+            # TODO: Judge polygons' validity
+            self.vertex_list = Vlist(self.main_polygon, self.clipping_polygon)
+            self.clipping = WAclip(self.vertex_list)
+            self.clipping.exec_clipping()  # Operate polygon clipping
 
     def reset_last_coord(self):
         self.last_x = -1
