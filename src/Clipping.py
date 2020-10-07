@@ -1,4 +1,4 @@
-from VertexList import VertexList as Vlist, Vertex
+from VertexList import VertexList as Vlist
 from Polygon import Polygon
 
 
