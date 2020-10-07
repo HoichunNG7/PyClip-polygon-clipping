@@ -10,6 +10,7 @@ class Application(Frame):
         self.last_x, self.last_y = -1, -1
         self.first_x, self.first_y = -1, -1
         self.color = 'red'
+        self.operation_flag = 0
         self.master = master
         self.pack()
 
@@ -54,19 +55,22 @@ class Application(Frame):
             self.reset_last_coord()
             self.canvas.bind('<Button-1>', self.draw_new_vertex)
         elif name == 'reset':
-            self.canvas.delete('all')
-            self.reset_last_coord()
-            self.reset_first_coord()
-            self.main_polygon = Polygon()
-            self.clipping_polygon = Polygon()
-            self.vertex_list = None
-            self.clipping = None
+            self.reset_everything()
         elif name == 'clipping':
-            # TODO: Judge polygons' validity
-            self.vertex_list = Vlist(self.main_polygon, self.clipping_polygon)
-            self.draw_crossings(self.vertex_list.crossing_list)
-            self.clipping = WAclip(self.vertex_list)
-            # self.clipping.exec_clipping()  # Operate polygon clipping
+            if self.operation_flag == 0:
+                self.vertex_list = Vlist(self.main_polygon, self.clipping_polygon)
+                self.draw_crossings(self.vertex_list.crossing_list)
+                self.clipping = WAclip(self.vertex_list)
+                self.operation_flag = self.operation_flag + 1
+            elif self.operation_flag == 1:
+                self.clipping.exec_clipping()  # Operate polygon clipping
+                self.draw_polygon(self.clipping.new_polygon, line_width=2)
+                self.operation_flag = self.operation_flag + 1
+            elif self.operation_flag == 2:
+                new_polygon = self.clipping.new_polygon
+                self.reset_everything()
+                self.main_polygon = new_polygon
+                self.draw_polygon(self.main_polygon, color='red')
 
     def reset_last_coord(self):
         self.last_x = -1
@@ -76,7 +80,20 @@ class Application(Frame):
         self.first_x = -1
         self.first_y = -1
 
+    def reset_everything(self):
+        self.canvas.delete('all')
+        self.operation_flag = 0
+        self.reset_last_coord()
+        self.reset_first_coord()
+        self.main_polygon = Polygon()
+        self.clipping_polygon = Polygon()
+        self.vertex_list = None
+        self.clipping = None
+
     def draw_new_vertex(self, event):
+        if self.operation_flag != 0:
+            return
+
         if self.first_x == -1:  # Store the ring's 1st vertex
             self.first_x, self.first_y = event.x, event.y
 
@@ -110,6 +127,21 @@ class Application(Frame):
         self.canvas.create_line(self.last_x, self.last_y, self.first_x, self.first_y, fill=self.color)
         self.reset_last_coord()
         self.reset_first_coord()
+
+    def draw_polygon(self, polygon: Polygon, line_width=1, color='black'):
+        for ring in polygon.all_rings:
+            if len(ring) == 0:
+                continue
+            old_node = None
+
+            for node in ring:
+                self.canvas.create_oval(node[0] - 5, node[1] - 5, node[0] + 5, node[1] + 5, fill=color)
+
+                if old_node is not None:
+                    self.canvas.create_line(old_node[0], old_node[1], node[0], node[1], fill=color, width=line_width)
+                old_node = node
+
+            self.canvas.create_line(old_node[0], old_node[1], ring[0][0], ring[0][1],fill=color, width=line_width)
 
 
 def main():

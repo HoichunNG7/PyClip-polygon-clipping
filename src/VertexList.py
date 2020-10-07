@@ -47,6 +47,7 @@ class VertexList:
         self.clipping_list = []
         self.crossing_list = []
         self.crossing_count = 0
+        self.polygon_vertex_id = -1
         self._generate_lists(main_polygon, clipping_polygon)
 
     def _generate_lists(self, m_polygon: Polygon, c_polygon: Polygon):
@@ -60,13 +61,15 @@ class VertexList:
             if m_length == 0:
                 continue
 
-            m_head_vertex = Vertex(m_ring[0][0], m_ring[0][1])
+            m_head_vertex = Vertex(m_ring[0][0], m_ring[0][1], id_=self.polygon_vertex_id)
+            self.polygon_vertex_id = self.polygon_vertex_id - 1
             self.main_list.append(m_head_vertex)
             m_old_vertex = m_head_vertex
 
             for i in range(1, m_length):
                 m_node = m_ring[i]
-                m_vertex = Vertex(m_node[0], m_node[1])
+                m_vertex = Vertex(m_node[0], m_node[1], id_=self.polygon_vertex_id)
+                self.polygon_vertex_id = self.polygon_vertex_id - 1
                 self.main_list.append(m_vertex)
                 if m_old_vertex is not None:
                     m_old_vertex.next = m_vertex
@@ -80,13 +83,15 @@ class VertexList:
             if c_length == 0:
                 continue
 
-            c_head_vertex = Vertex(c_ring[0][0], c_ring[0][1])
+            c_head_vertex = Vertex(c_ring[0][0], c_ring[0][1], id_=self.polygon_vertex_id)
+            self.polygon_vertex_id = self.polygon_vertex_id - 1
             self.clipping_list.append(c_head_vertex)
             c_old_vertex = c_head_vertex
 
             for i in range(1, c_length):
                 c_node = c_ring[i]
-                c_vertex = Vertex(c_node[0], c_node[1])
+                c_vertex = Vertex(c_node[0], c_node[1], id_=self.polygon_vertex_id)
+                self.polygon_vertex_id = self.polygon_vertex_id - 1
                 self.clipping_list.append(c_vertex)
                 if c_old_vertex is not None:
                     c_old_vertex.next = c_vertex
@@ -155,6 +160,12 @@ class VertexList:
         current_list.insert(insert_pos, crossing)
         last_vertex_in_list.next = crossing
         crossing.next = vertex_in_list
+
+    def delete_crossing_by_id(self, index: int):
+        for v in self.crossing_list:
+            if v.id == index:
+                self.crossing_list.remove(v)
+                break
 
 
 class Vertex:

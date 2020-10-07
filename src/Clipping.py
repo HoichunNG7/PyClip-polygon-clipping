@@ -11,42 +11,31 @@ class WeilerAthertonClipping:
         if self.v_list is None:
             return
 
-        in_list = self.v_list.crossing_in_list
-        out_list = self.v_list.crossing_out_list
-        while len(in_list) != 0:
-            start = in_list[0]
-            current = start.next
-            flag = 0
-            self.new_polygon.add_vertex(start.x, start.y)
+        while True:
+            if len(self.v_list.crossing_list) > 0:
+                current_node = self.v_list.crossing_list[0]
+                flag = current_node.type
+                if flag == 1:
+                    current_node = current_node.mutual_link
 
-            while current != start:
-                self.new_polygon.add_vertex(current.x, current.y)
-                if flag == 0:  # Next crossing will be in out_list
-                    pass
-                else:  # Next crossing will be in in_list
-                    pass
+                start_node = current_node
+                self.new_polygon.add_vertex(current_node.x, current_node.y)
+            else:
+                break
+
+            while True:
+                current_node = current_node.next
+                if current_node.id == start_node.id:
+                    self.v_list.delete_crossing_by_id(current_node.id)
+                    break
+
+                self.new_polygon.add_vertex(current_node.x, current_node.y)
+
+                if current_node.id < 0:  # polygon vertex
+                    continue
+                self.v_list.delete_crossing_by_id(current_node.id)
+                current_node = current_node.mutual_link  # crossing
 
             self.new_polygon.close_ring()
 
         return
-
-    def _search_in_vertex(self) -> Vertex:
-        main_top_x = -1
-        main_top = None
-        clipping_top = None
-
-        for v in self.v_list.main_list:
-            if v.x > main_top_x:
-                main_top = v
-                main_top_x = v.x
-
-        clip_top_x = -1
-        for v in self.v_list.clipping_list:
-            if v.x > clip_top_x:
-                clipping_top = v
-                clip_top_x = v.x
-
-        if clipping_top < main_top:  # The rightmost vertex is from main polygon
-            pass
-        else:  # The rightmost vertex is from clipping polygon
-            pass
