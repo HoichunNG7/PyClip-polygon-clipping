@@ -59,11 +59,14 @@ class Application(Frame):
             self.reset_first_coord()
             self.main_polygon = Polygon()
             self.clipping_polygon = Polygon()
+            self.vertex_list = None
+            self.clipping = None
         elif name == 'clipping':
             # TODO: Judge polygons' validity
             self.vertex_list = Vlist(self.main_polygon, self.clipping_polygon)
+            self.draw_crossings(self.vertex_list.crossing_list)
             self.clipping = WAclip(self.vertex_list)
-            self.clipping.exec_clipping()  # Operate polygon clipping
+            # self.clipping.exec_clipping()  # Operate polygon clipping
 
     def reset_last_coord(self):
         self.last_x = -1
@@ -87,6 +90,10 @@ class Application(Frame):
             self.canvas.create_line(self.last_x,  self.last_y, event.x, event.y, fill=self.color)
 
         self.last_x, self.last_y = event.x, event.y
+
+    def draw_crossings(self, crossing_list: list):
+        for node in crossing_list:
+            self.canvas.create_oval(node[0] - 5, node[1] - 5, node[0] + 5, node[1] + 5, fill='black')
 
     def draw_last_edge(self, event):
         if self.first_x == -1:
