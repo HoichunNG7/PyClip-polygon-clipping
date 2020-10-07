@@ -31,6 +31,16 @@ def find_crossing_of_segments(ax1, ay1, ax2, ay2, bx1, by1, bx2, by2):
         return None
 
 
+def judge_crossing_type(m_back, m_front, c_back, c_front) -> int:
+    main_vector = (m_front.x - m_back.x, m_front.y - m_back.y)
+    clipping_vector = (c_back.y - c_front.y, c_front.x - c_back.x)
+
+    if main_vector[0] * clipping_vector[0] + main_vector[1] * clipping_vector[1] > 0:  # out-crossing
+        return 1
+    else:  # in-crossing
+        return 0
+
+
 class VertexList:
     def __init__(self, main_polygon=None, clipping_polygon=None):
         self.main_list = []
@@ -100,12 +110,17 @@ class VertexList:
                     # print('mb-', m_back.x, 'mf-', m_front.x, 'cb-', c_back.x, 'cf-', c_front.x)
                     # print('mb-', m_back.y, 'mf-', m_front.y, 'cb-', c_back.y, 'cf-', c_front.y)
                     # print('crossing: id-', self.crossing_count, '  position-', crossing, '  i-', i, '  j-', j)
-                    self.crossing_list.append(crossing)
                     m_vertex = Vertex(crossing[0], crossing[1], id_=self.crossing_count)
                     c_vertex = Vertex(crossing[0], crossing[1], id_=self.crossing_count)
-                    self.crossing_count = self.crossing_count + 1
+                    if judge_crossing_type(m_back, m_front, c_back, c_front) == 1:
+                        m_vertex.type, c_vertex.type = 1, 1
+                    else:
+                        m_vertex.type, c_vertex.type = 0, 0
                     m_vertex.mutual_link = c_vertex
                     c_vertex.mutual_link = m_vertex
+
+                    self.crossing_list.append(m_vertex)
+                    self.crossing_count = self.crossing_count + 1
 
                     insertion_list.append((m_vertex, 0, m_back))
                     insertion_list.append((c_vertex, 1, c_back))
@@ -147,5 +162,6 @@ class Vertex:
         self.x = x
         self.y = y
         self.id = id_
+        self.type = -1  # in-crossing - 0 or out-crossing - 1
         self.next = next_
         self.mutual_link = link

@@ -93,7 +93,10 @@ class Application(Frame):
 
     def draw_crossings(self, crossing_list: list):
         for node in crossing_list:
-            self.canvas.create_oval(node[0] - 5, node[1] - 5, node[0] + 5, node[1] + 5, fill='black')
+            if node.type == 1:
+                self.canvas.create_oval(node.x - 5, node.y - 5, node.x + 5, node.y + 5, fill='black')
+            else:
+                self.canvas.create_oval(node.x - 5, node.y - 5, node.x + 5, node.y + 5, fill='green')
 
     def draw_last_edge(self, event):
         if self.first_x == -1:
